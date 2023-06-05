@@ -1,5 +1,5 @@
-from typing import Dict
 from functools import lru_cache
+from typing import Dict
 from typing import Generator
 
 
