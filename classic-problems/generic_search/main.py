@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TypeVar, Iterable, Sequence, Any, Protocol, Generic, List, Optional, Callable, Set, Deque
+from heapq import heappush, heappop
+from typing import TypeVar, Iterable, Sequence, Any, Protocol, Generic, List, Optional, Callable, Set, Deque, Dict
 
 T = TypeVar('T')
 
@@ -151,6 +152,49 @@ def bfs(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], Li
             explored.add(child)
             frontier.push(Node(child, current_node))
     # went through everything and never found goal
+    return None
+
+
+class PriorityQueue(Generic[T]):
+    def __init__(self) -> None:
+        self._container: List[T] = []
+
+    @property
+    def empty(self) -> bool:
+        return not self._container
+
+    def push(self, item: T) -> None:
+        heappush(self._container, item)
+
+    def pop(self) -> T:
+        return heappop(self._container)
+
+    def __repr__(self) -> str:
+        return repr(self._container)
+
+
+def astar(initial: T, goal_test: Callable[[T], bool], successors: Callable[[T], List[T]],
+          heuristic: Callable[[T], float]) -> Optional[Node[T]]:
+    # frontier is where we've yet to go
+    frontier: PriorityQueue[Node[T]] = PriorityQueue()
+    frontier.push(Node(initial, None, 0.0, heuristic(initial)))
+    # explored is where we've been
+    explored: Dict[T, float] = {initial: 0.0}
+
+    # keep going while there is more to explore
+    while not frontier.empty:
+        current_node: Node[T] = frontier.pop()
+        current_state: T = current_node.state
+        # if we found the goal, we're done
+        if goal_test(current_state):
+            return current_node
+        # check where we can go next and haven't explored
+        for child in successors(current_state):
+            # 1 assumes a grid, need a cost function for more sophisticated apps
+            new_cost: float = current_node.cost + 1
+            if child not in explored or explored[child] > new_cost:
+                explored[child] = new_cost
+                frontier.push(Node(child, current_node, new_cost, heuristic(child)))
     return None
 
 
