@@ -29,7 +29,7 @@ class CSP(Generic[V, D]):
         for variable in self.variables:
             self.constraints[variable] = []
             if variable not in self.domains:
-                raise LookupError("Every variable shoud have a domain assigned to it.")
+                raise LookupError("Every variable should have a domain assigned to it.")
 
     def add_constraint(self, constraint: Constraint[V, D]) -> None:
         for variable in constraint.variables:
